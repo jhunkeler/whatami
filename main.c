@@ -85,13 +85,10 @@ int get_os_dist_linux(char **name, char **version) {
     const char *filename = "/etc/os-release";
     FILE *fp;
 
-    if (access(filename, R_OK) < 0) {
-        return -1;
-    }
-
     fp = fopen(filename, "r");
     if (!fp) {
-        perror(filename);
+        *name = strdup("Unknown");
+        *version = strdup("Unknown");
         return -1;
     }
 
@@ -329,43 +326,35 @@ struct Block_Device **get_block_devices(size_t *total) {
 
         char line[255] = {0};
         FILE *fp;
-        fp = fopen(device_size_file, "r");
-        if (!fp) {
-            perror(device_size_file);
-            continue;
-        }
-        if (!fgets(line, sizeof(line) - 1, fp)) {
-            perror("Unable to read from file");
-            continue;
-        }
-        fclose(fp);
 
         size_t device_size;
-        device_size = strtoull(line, NULL, 10);
+        fp = fopen(device_size_file, "r");
+        if (!fp) {
+            device_size = 0;
+        } else {
+            if (!fgets(line, sizeof(line) - 1, fp)) {
+                perror("Unable to read from file");
+                continue;
+            }
+            device_size = strtoull(line, NULL, 10);
+            fclose(fp);
+        }
 
         char device_model[255] = {0};
-        if (access(device_model_file, R_OK) < 0) {
-            perror(device_model_file);
-            continue;
-        }
-
         fp = fopen(device_model_file, "r");
         if (!fp) {
-            perror(device_model_file);
-            continue;
+            // no model file
+            strcpy(device_model, "Unnamed");
+        } else {
+            if (!fgets(device_model, sizeof(line) - 1, fp)) {
+                perror("Unable to read device model");
+                continue;
+            }
+            fclose(fp);
         }
-        if (!fgets(device_model, sizeof(line) - 1, fp)) {
-            perror("Unable to read device model");
-            continue;
-        }
-        fclose(fp);
 
         rstrip(device_model);
-        if (strlen(device_model)) {
-            strcpy(result[i]->model, device_model);
-        } else {
-            strcpy(result[i]->model, "Unnamed");
-        }
+        strcpy(result[i]->model, device_model);
         strncpy(result[i]->path, rec->d_name, sizeof(result[i]->path) - 1);
         result[i]->size = device_size;
         i++;
