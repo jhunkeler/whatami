@@ -393,8 +393,8 @@ int main() {
     struct utsname kinfo;
     union regs_t reg;
 
-    if (CPUID(0, &reg) && reg.gpr.eax < 0x80000004) {
-        fprintf(stderr, "CPU is not supported\n");
+    if (CPUID(0, &reg) && reg.gpr.eax < 2) {
+        fprintf(stderr, "CPU is not supported: 0x%08X\n", reg.gpr.eax);
         exit(1);
     }
 
