@@ -41,6 +41,9 @@ unsigned int CPUID(unsigned int leaf, union regs_t *reg);
 int is_cpu_hyperthreaded();
 int is_cpu_virtual();
 char *get_sys_product();
+#if defined(__APPLE__)
+char *get_sys_product_darwin();
+#endif
 unsigned int get_cpu_count();
 char *get_cpu_manufacturer();
 char *get_cpu_vendor();
