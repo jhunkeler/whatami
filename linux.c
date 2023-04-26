@@ -38,10 +38,10 @@ int get_sys_os_dist(char **name, char **version) {
             value[strlen(value) - 1] = '\0';
         }
         if (!strcmp(key, "NAME")) {
-            *name = strdup(value);
+            (*name) = strdup(value);
         }
         if (!strcmp(key, "VERSION") || !strcmp(key, "VERSION_ID") || !strcmp(key, "BUILD_ID")) {
-            *version = strdup(value);
+            (*version) = strdup(value);
         }
     }
     fclose(fp);
@@ -74,24 +74,16 @@ ssize_t get_sys_memory() {
 
 char *get_sys_dmi_product() {
     FILE *fp;
-    char *buf;
-    const int buf_size = 255;
-
-    buf = calloc(buf_size, sizeof(*buf));
-    if (!buf) {
-        return NULL;
-    }
+    static char buf[255];
 
     fp = fopen("/sys/class/dmi/id/product_name", "r");
     if (!fp) {
-        free(buf);
         return NULL;
     }
 
-    if (!fgets(buf, buf_size, fp)) {
+    if (!fgets(buf, sizeof(buf) - 1, fp)) {
         perror("Unable to read system vendor");
         if (fp != NULL) {
-            free(buf);
             fclose(fp);
         }
         return NULL;
@@ -125,9 +117,10 @@ struct Block_Device **get_block_devices(size_t *total) {
     }
     rewinddir(dp);
 
-    result = calloc(devices_total + 1, sizeof(result));
-    for (size_t d = 0; d < devices_total; d++) {
-        result[d] = calloc(1, sizeof(*result[0]));
+    result = calloc(devices_total + 1, sizeof(*result));
+    if (!result) {
+        perror("Unable to allocate device array");
+        return NULL;
     }
 
     while ((rec = readdir(dp)) != NULL) {
@@ -166,7 +159,7 @@ struct Block_Device **get_block_devices(size_t *total) {
             // no model file
             strcpy(device_model, "Unnamed");
         } else {
-            if (!fgets(device_model, sizeof(line) - 1, fp)) {
+            if (!fgets(device_model, sizeof(device_model) - 1, fp)) {
                 perror("Unable to read device model");
                 continue;
             }
@@ -174,8 +167,9 @@ struct Block_Device **get_block_devices(size_t *total) {
         }
 
         rstrip(device_model);
-        strcpy(result[i]->model, device_model);
-        strncpy(result[i]->path, rec->d_name, sizeof(result[i]->path) - 1);
+        result[i] = calloc(1, sizeof(*result[0]));
+        result[i]->model = strdup(device_model);
+        result[i]->path = strdup(rec->d_name);
         result[i]->size = device_size;
         i++;
     }

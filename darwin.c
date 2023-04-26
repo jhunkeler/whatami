@@ -2,12 +2,12 @@
 #include "common.h"
 
 char *get_sys_product_darwin() {
-    char model[100] = {0};
+    static char model[100] = {0};
     size_t len;
 
     len = sizeof(model);
     sysctlbyname("hw.model", model, &len, NULL, 0);
-    return strdup(model);
+    return model;
 }
 
 ssize_t get_sys_memory() {

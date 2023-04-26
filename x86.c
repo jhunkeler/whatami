@@ -37,26 +37,21 @@ int is_cpu_virtual() {
 
 char *get_sys_product() {
     union regs_t reg;
-    char *vendor;
+    static char vendor[255] = {0};
 
-    vendor = NULL;
     if (is_cpu_virtual()) {
-        vendor = calloc(255, sizeof(*vendor));
-        if (!vendor) {
-            return NULL;
-        }
         CPUID(0x40000000, &reg);
         strncat(vendor, (char *) &reg.bytes[1], sizeof(reg.bytes));
         rstrip(vendor);
     }
 #if defined(__linux__)
     if (!vendor || !strlen(vendor)) {
-        vendor = get_sys_dmi_product();
+        strcpy(vendor, get_sys_dmi_product());
         rstrip(vendor);
     }
 #elif defined(__APPLE__)
     if (!vendor || !strlen(vendor)) {
-        vendor = get_sys_product_darwin();
+        strcpy(vendor, get_sys_product_darwin());
         rstrip(vendor);
     }
 #endif
@@ -89,13 +84,9 @@ unsigned int get_cpu_count() {
 
 char *get_cpu_manufacturer() {
     union regs_t reg;
-    char *manufacturer;
+    static char manufacturer[255] = {0};
 
     CPUID(0, &reg);
-    manufacturer = calloc(sizeof(reg.bytes), sizeof(*reg.bytes));
-    if (!manufacturer) {
-        return NULL;
-    }
     strncat(manufacturer, (char *) &reg.bytes[1], 4);
     strncat(manufacturer, (char *) &reg.bytes[3], 4);
     strncat(manufacturer, (char *) &reg.bytes[2], 4);
@@ -104,9 +95,8 @@ char *get_cpu_manufacturer() {
 
 char *get_cpu_vendor() {
     union regs_t reg;
-    char *vendor;
+    static char vendor[255] = {0};
 
-    vendor = calloc(sizeof(reg.bytes) * 3, sizeof(*reg.bytes));
     for (unsigned int leaf = 2; leaf < 5; leaf++) {
         CPUID(0x80000000 + leaf, &reg);
         strncat(vendor, (char *) reg.bytes, sizeof(reg.bytes));

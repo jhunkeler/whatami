@@ -1,9 +1,10 @@
 #include "common.h"
 
 static int cmp_block_device(const void *aa, const void *bb) {
-    const char *a = ((struct Block_Device *) aa)->path;
-    const char *b = ((struct Block_Device *) bb)->path;
-    return strcmp(a, b) == 0;
+    struct Block_Device *a = *(struct Block_Device **) aa;
+    struct Block_Device *b = *(struct Block_Device **) bb;
+
+    return strcmp(a->path, b->path);
 }
 
 int main() {
@@ -53,13 +54,22 @@ int main() {
     if (!block_device) {
         fprintf(stderr, "Unable to enumerate block devices\n");
     } else {
-        qsort(block_device, device_count, sizeof(block_device), cmp_block_device);
+        qsort(block_device, device_count, sizeof(block_device[0]), cmp_block_device);
         for (size_t bd = 0; bd < device_count; bd++) {
             struct Block_Device *p;
             p = block_device[bd];
             printf("  %s /dev/%s (%.2lfGB)\n", p->model, p->path, (double) p->size / 1024 / 1024);
         }
     }
+
+    for (size_t i = 0; i < device_count; i++) {
+        free(block_device[i]->path);
+        free(block_device[i]->model);
+        free(block_device[i]);
+    }
+    free(block_device);
+    free(distro_name);
+    free(distro_version);
 
     return 0;
 }

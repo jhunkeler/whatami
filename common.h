@@ -32,8 +32,8 @@ union regs_t {
 };
 
 struct Block_Device {
-    char path[PATH_MAX];
-    char model[254];
+    char *path;
+    char *model;
     size_t size;
 };
 
