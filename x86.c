@@ -45,12 +45,12 @@ char *get_sys_product() {
         rstrip(vendor);
     }
 #if defined(__linux__)
-    if (!vendor || !strlen(vendor)) {
+    if (!strlen(vendor)) {
         strcpy(vendor, get_sys_dmi_product());
         rstrip(vendor);
     }
 #elif defined(__APPLE__)
-    if (!vendor || !strlen(vendor)) {
+    if (!strlen(vendor)) {
         strcpy(vendor, get_sys_product_darwin());
         rstrip(vendor);
     }
