@@ -19,6 +19,9 @@
 #elif defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
 #endif
 
 union regs_t {
