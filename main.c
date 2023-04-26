@@ -50,6 +50,7 @@ int main() {
     printf("Block devices:\n");
 
     struct Block_Device **block_device;
+    device_count = 0;
     block_device = get_block_devices(&device_count);
     if (!block_device) {
         fprintf(stderr, "Unable to enumerate block devices\n");
