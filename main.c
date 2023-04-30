@@ -59,7 +59,7 @@ int main() {
         for (size_t bd = 0; bd < device_count; bd++) {
             struct Block_Device *p;
             p = block_device[bd];
-            printf("  %s /dev/%s (%.2lfGB)\n", p->model, p->path, (double) p->size / 1024 / 1024);
+            printf("  %s %s (%.2lfGB)\n", p->model, p->path, (double) p->size / 1024 / 1024);
         }
     }
 

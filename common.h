@@ -4,18 +4,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/utsname.h>
-#include <cpuid.h>
 #include <ctype.h>
-#include <dirent.h>
 #include <limits.h>
 
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(_WINDOWS) || defined(__MINGW32__)
+#include "win.h"
+#else
+#include <dirent.h>
+#include <unistd.h>
+#include <cpuid.h>
+#include <sys/utsname.h>
+#endif
+
+#if defined(__x86_64__) || defined(__i386__) || defined(__MACHINEX86_X64)
 #include "x86.h"
 #endif
 
 #if defined(__linux__)
+// nothing yet
 #elif defined(__APPLE__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -51,11 +57,10 @@ unsigned int get_cpu_count();
 char *get_cpu_manufacturer();
 char *get_cpu_vendor();
 
-
 size_t rstrip(char *s);
+char *get_sys_dmi_product();
 int get_sys_os_dist(char **name, char **version);
 ssize_t get_sys_memory();
-char *get_sys_dmi_product();
 struct Block_Device **get_block_devices(size_t *total);
 
 #endif //WHATAMI_COMMON_H

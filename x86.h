@@ -1,6 +1,6 @@
 #ifndef WHATAMI_X86_H
 #define WHATAMI_X86_H
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(__x86_64__) || defined(__i386__) || defined(__MACHINEX86_X64)
 
 #ifndef bit_HTT
 // Hyperthreading

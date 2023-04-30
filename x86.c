@@ -54,6 +54,25 @@ char *get_sys_product() {
         strcpy(vendor, get_sys_product_darwin());
         rstrip(vendor);
     }
+#elif defined(_WIN32) || defined(_WIN64)
+    HKEY data;
+    long result;
+    DWORD size = sizeof(vendor) - 1;
+    result = RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+                           "SYSTEM\\CurrentControlSet\\Control\\SystemInformation",
+                           0,
+                           KEY_READ,
+                           &data);
+    if (!result) {
+        if (!RegQueryValueEx(data,
+                             "SystemProductName",
+                             0,
+                             NULL,
+                             (LPBYTE) vendor,
+                             &size)) {
+            RegCloseKey(data);
+        }
+    }
 #endif
     return vendor;
 }
